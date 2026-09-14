@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """Rassemble les notebooks du vault dans content/ pour `jupyter lite build`.
 
-Les notebooks vivent dans les dossiers de modules ("N. <Titre>/...ipynb",
+Les notebooks vivent dans les dossiers de modules ("source/N. <Titre>/...ipynb",
 source de vérité, jamais modifiés ici) ; ce script les copie dans content/
-en conservant l'arborescence (ex. "2. Intro python/exercices.ipynb" reste
-sous "2. Intro python/"), pour les retrouver sous leur dossier dans
-JupyterLite.
+en conservant l'arborescence relative à source/ (ex. "source/2. Intro
+python/exercices.ipynb" devient "content/2. Intro python/exercices.ipynb"),
+pour les retrouver sous leur dossier dans JupyterLite.
 
 À la copie, chaque notebook reçoit en première cellule un bouton "Clear
 notebook ..." qui efface son état du stockage local du navigateur
@@ -27,9 +27,10 @@ import sys
 from pathlib import Path
 
 RACINE = Path(__file__).resolve().parent.parent
+SOURCE = RACINE / "source"
 CONTENT = RACINE / "content"
 
-EXCLUS = (".git", "dist", "content", "node_modules", ".venv", ".ipynb_checkpoints")
+EXCLUS = (".git", "dist", "content", "node_modules", ".venv", ".obsidian", ".ipynb_checkpoints")
 
 MARQUEUR = "indexedDB"
 
@@ -41,8 +42,8 @@ def est_exclu(chemin: Path) -> bool:
 def trouver_notebooks() -> list[Path]:
     return sorted(
         p
-        for p in RACINE.rglob("*.ipynb")
-        if not est_exclu(p.relative_to(RACINE))
+        for p in SOURCE.rglob("*.ipynb")
+        if not est_exclu(p.relative_to(SOURCE))
         and "checkpoint" not in p.name
     )
 
@@ -93,7 +94,7 @@ def est_cellule_clear(cellule: dict) -> bool:
 
 def collecter() -> None:
     for src in trouver_notebooks():
-        rel = src.relative_to(RACINE)
+        rel = src.relative_to(SOURCE)
         dst = CONTENT / rel
         dst.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(src, dst)

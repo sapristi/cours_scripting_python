@@ -1,6 +1,6 @@
 .ipynb_checkpoints/
 
-.obsidian/*
+.obsidian
 
 # JupyterLite (build local + staging généré)
 dist/

@@ -5,10 +5,11 @@ Obsidian vault, pas un projet code.
 
 ## Structure
 
-- `Général.md` : objectifs + plan.
-- `N. <Titre>.md` à la racine = un module de cours. Frontmatter requis : `durée (h)` (nombre) + `Contexte` (texte, source du plan).
-- `N. <Titre>/` (même nom que le `.md`) = assets du module (slides, images, futurs énoncés/TP). 
-- `Cours.base` = config Bases/Dataview du tableau de bord (`file.folder == "/"`, `file.ext == "md"`). Ne pas éditer comme du contenu.
+- `source/` = vault Obsidian (à ouvrir comme vault ; workspace dans `source/.obsidian/`).
+- `source/Entrypoint.md` : objectifs + plan.
+- `source/N. <Titre>.md` = un module de cours. Frontmatter requis : `durée (h)` (nombre) + `Contexte` (texte, source du plan).
+- `source/N. <Titre>/` (même nom que le `.md`) = assets du module (slides, images, notebooks `.ipynb`, futurs énoncés/TP).
+- `source/Cours.base` = config Bases/Dataview du tableau de bord (`file.folder == "/"`, `file.ext == "md"`, `/` = racine du vault `source/`). Ne pas éditer comme du contenu.
 - Images : `![[Pasted image ....png|largeur]]` (embed Obsidian + resize). Stocker dans chaque dossier correspondant.
 - Slides : source `.typ` (Typst), compilée en `.pdf` à côté. Éditer le `.typ`, jamais le `.pdf` directement ; recompiler : `typst compile "<fichier>.typ"`.
 
@@ -16,7 +17,7 @@ Obsidian vault, pas un projet code.
 
 - Liens/embeds wiki `[[...]]` / `![[...]]`, callouts `[!abstract]`, `[!info]`, `[!danger]`, `[!example]`, `[!note]`.
 - Frontmatter YAML strict (`---` blocs). `Contexte` multiligne avec `|-`.
-- Ne pas toucher à `.obsidian/` (workspace, `graph.json`, `types.json`, plugins : `auto-numbered-headings`, `floating-headings`, `heading-level-indent`).
+- Ne pas toucher à `source/.obsidian/` (workspace, `graph.json`, `types.json`, plugins : `auto-numbered-headings`, `floating-headings`, `heading-level-indent`).
 - Rédiger en français. Vocabulaire suggéré du module 1 : CIA, AAA, vulnérabilité/exploit/payload/IOC/TTP, Kill Chain, Red/Blue team.
 
 ## Garde-fou contenu
@@ -26,4 +27,5 @@ Obsidian vault, pas un projet code.
 
 ## Scripts
 
-- `scripts/check_snippets.py` : vérifie la syntaxe des snippets Python dans les `.md` (blocs ` ```python ` via `ast.parse`, blocs REPL `>>>` ignorés). Usage : `python3 scripts/check_snippets.py [CHEMIN ...]` (défaut : tout le vault). À lancer avant de considérer un module comme terminé.
+- `scripts/check_snippets.py` : syntaxe des snippets Python des `.md` (`ast.parse`, REPL `>>>` ignorés). Usage : `python3 scripts/check_snippets.py [CHEMIN ...]` (défaut : `source/`). À lancer avant de considérer un module comme terminé.
+- `scripts/collect_lite_content.py` : copie les notebooks de `source/` vers `content/` (staging gitignoré pour `jupyter lite build`, CI + `scripts/preview_lite.py`). Ne jamais éditer les copies dans `content/`.

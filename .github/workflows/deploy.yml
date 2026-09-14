@@ -34,7 +34,7 @@ jobs:
 
       - name: Collect notebooks into content/
         # Les notebooks vivent dans les dossiers de modules
-        # ("N. <Titre>/...ipynb", source de vérité). Le script les copie
+        # ("source/N. <Titre>/...ipynb", source de vérité). Le script les copie
         # dans content/ et y injecte une première cellule "Clear notebook".
         run: uv run --frozen scripts/collect_lite_content.py
 

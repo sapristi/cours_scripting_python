@@ -6,8 +6,8 @@ Les blocs REPL (contenant >>>) sont ignorés.
 
 Usage :
     python3 scripts/check_snippets.py [CHEMIN ...]
-    python3 scripts/check_snippets.py "2. Intro python.md"
-    python3 scripts/check_snippets.py .          # tout le vault (défaut)
+    python3 scripts/check_snippets.py "source/2. Intro python.md"
+    python3 scripts/check_snippets.py source      # tout le vault (défaut)
 
 Sortie : 0 si tout est OK, 1 si au moins un bloc est en erreur.
 """
@@ -75,13 +75,14 @@ def collecter_md(cibles: list[str]) -> list[Path]:
             fichiers.append(p)
         else:
             print(f"cible introuvable : {cible}", file=sys.stderr)
-    # Exclut le workspace Obsidian.
-    return [f for f in fichiers if ".obsidian" not in f.parts]
+    # Exclut le workspace Obsidian et les dossiers de build/environnement.
+    exclus = (".obsidian", ".git", "dist", "content", "node_modules", ".venv", ".ipynb_checkpoints")
+    return [f for f in fichiers if not any(part in exclus for part in f.parts)]
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("chemins", nargs="*", default=["."], help="fichiers ou dossiers à vérifier")
+    parser.add_argument("chemins", nargs="*", default=["source"], help="fichiers ou dossiers à vérifier")
     args = parser.parse_args()
 
     fichiers = collecter_md(args.chemins)
