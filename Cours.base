@@ -1,0 +1,26 @@
+filters:
+  and:
+    - file.folder == "/"
+    - file.ext == "md"
+    - file.hasProperty("Contexte")
+views:
+  - type: table
+    name: Tableau
+    order:
+      - file.name
+      - durée (h)
+      - Contexte
+    sort:
+      - property: file.folder
+        direction: ASC
+      - property: formula.Sans titre
+        direction: ASC
+      - property: file.tags
+        direction: DESC
+    columnSize:
+      note.durée (h): 48
+  - type: list
+    name: Vue
+    order:
+      - file.name
+      - Contexte
