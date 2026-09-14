@@ -9,7 +9,8 @@ pour les retrouver sous leur dossier dans JupyterLite.
 
 À la copie, chaque notebook reçoit en première cellule un bouton "Clear
 notebook ..." qui efface son état du stockage local du navigateur
-(IndexedDB "JupyterLite Storage", tables "checkpoints" et "files") : sans
+(toutes les bases IndexedDB dont le nom contient "JupyterLite Storage",
+tables "checkpoints" et "files") : sans
 ça, un élève qui rouvre le site retrouve son ancienne version au lieu de
 celle publiée. La clé effacée est le chemin du notebook dans le site
 (ex. "2. Intro python/exercices.ipynb"). Si le notebook source contient
@@ -61,17 +62,38 @@ def cellule_clear(cle: str) -> dict:
         f'display(HTML("""<button type="button" id="button_for_indexeddb">{libelle}</button>'
         "    <script>"
         "    window.button_for_indexeddb.onclick = function(e) {"
-        "        window.indexedDB.open('JupyterLite Storage').onsuccess = function(e) {"
-        '            let tables = ["checkpoints", "files"];'
-        '            let t = e.target.result.transaction(tables, "readwrite");'
-        "            function clearNotenook(tablename) {"
-        f"                t.objectStore(tablename).delete('{jk}').onsuccess = function(e) {{"
-        f'                    console.log("Deleted {jk} state in " + tablename + " (" + e.target.result + ")");'
+        "        function clearFrom(dbName) {"
+        "            let req;"
+        "            try { req = window.indexedDB.open(dbName); }"
+        '            catch (err) { console.warn("Skipping " + dbName + ": " + err); return; }'
+        "            req.onerror = function(ev) {"
+        '                console.warn("Cannot open " + dbName + ": " + (ev.target.error || ev));'
+        "            };"
+        "            req.onsuccess = function(e) {"
+        "                let db = e.target.result;"
+        '                for (let tablename of ["checkpoints", "files"]) {'
+        "                    try {"
+        "                        if (!db.objectStoreNames.contains(tablename)) continue;"
+        '                        let t = db.transaction(tablename, "readwrite");'
+        "                        t.onerror = function(ev) {};"
+        f"                    let del; try {{ del = t.objectStore(tablename).delete('{jk}'); }} catch (err) {{ continue; }}"
+        "                        del.onerror = function(ev) {};"
+        "                        del.onsuccess = function(ev) {"
+        f'                            console.log("Deleted {jk} state in " + dbName + "/" + tablename + " (" + ev.target.result + ")");'
+        "                        };"
+        "                    }"
+        '                    catch (err) { console.warn("Skipping " + dbName + "/" + tablename + ": " + err); }'
         "                }"
-        "            }"
-        "            for (let tablename of tables) {"
-        "                clearNotenook(tablename);"
-        "            }"
+        "            };"
+        "        };"
+        "        if (window.indexedDB.databases) {"
+        "            window.indexedDB.databases().then(dbs => {"
+        "                let names = dbs.map(d => d.name).filter(n => n && n.includes('JupyterLite Storage'));"
+        "                if (!names.length) names = ['JupyterLite Storage'];"
+        "                names.forEach(clearFrom);"
+        "            });"
+        "        } else {"
+        "            clearFrom('JupyterLite Storage');"
         "        }"
         "    };"
         '    </script>"""))'
