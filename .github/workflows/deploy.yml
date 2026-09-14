@@ -1,0 +1,66 @@
+name: Build and Deploy JupyterLite
+
+# Template upstream : jupyterlite/demo
+# (.github/workflows/deploy.yml, actions/checkout@v4,
+#  upload-pages-artifact@v3, deploy-pages@v4),
+# adapté à uv (docs astral-sh/setup-uv) : dépendances dans pyproject.toml,
+# versions figées par uv.lock (`uv sync --frozen`).
+# URL cible : https://sapristi.github.io/scripting_python/ (baseUrl relatif
+# "./" par défaut de JupyterLite, aucun réglage nécessaire pour un project site).
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - "*"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+        with:
+          python-version: "3.11"
+          enable-cache: true
+
+      - name: Install the dependencies
+        run: uv sync --frozen
+
+      - name: Collect notebooks into content/
+        # Les notebooks vivent dans les dossiers de modules
+        # ("N. <Titre>/...ipynb", source de vérité). Le script les copie
+        # dans content/ et y injecte une première cellule "Clear notebook".
+        run: uv run --frozen scripts/collect_lite_content.py
+
+      - name: Build the JupyterLite site
+        run: |
+          uv run --frozen jupyter lite build
+          touch dist/.nojekyll
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

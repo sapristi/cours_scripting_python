@@ -2,4 +2,10 @@
 
 .obsidian/*
 
+# JupyterLite (build local + staging généré)
+dist/
+content/
+.jupyterlite.doit.db*
+_output/
+.venv/
 

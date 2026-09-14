@@ -1,0 +1,27 @@
+[project]
+name = "scripting-python-cours"
+version = "0.1.0"
+description = "Cours scripting Python pour la cybersécurité — build JupyterLite (Pyodide)"
+requires-python = ">=3.11"
+dependencies = [
+    # Dépendances de build JupyterLite.
+    # Source : template upstream jupyterlite/demo (docs :
+    # https://jupyterlite.readthedocs.io/en/latest/quickstart/deploy.html).
+    # Versions épinglées au 2026-09-14 : core 0.8.3 (release du 2026-08-20),
+    # pyodide-kernel 0.8.6. Compatibilité : jupyterlab >=4.6.0,<4.7,
+    # notebook >=7.6.0,<7.7 (table upstream pyodide-kernel).
+    # Pour mettre à jour : changer les versions, `uv lock`, laisser la CI rebuilding.
+    # Core (obligatoire) : CLI `jupyter lite build`
+    "jupyterlite-core==0.8.3",
+    "jupyterlab~=4.6.0",
+    "notebook~=7.6.0",
+    # Noyau Python dans le navigateur (Pyodide, aucune install côté élève)
+    "jupyterlite-pyodide-kernel==0.8.6",
+    # Indexation du dossier content/ au build
+    "jupyter-server",
+]
+
+[tool.uv]
+# Projet virtuel : pas de paquet à construire, juste des dépendances
+# pour `jupyter lite build` (`uv sync` / `uv run`).
+package = false
