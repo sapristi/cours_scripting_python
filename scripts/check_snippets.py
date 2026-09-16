@@ -6,8 +6,8 @@ Les blocs REPL (contenant >>>) sont ignorés.
 
 Usage :
     python3 scripts/check_snippets.py [CHEMIN ...]
-    python3 scripts/check_snippets.py "source/2. Intro python.md"
-    python3 scripts/check_snippets.py source      # tout le vault (défaut)
+    python3 scripts/check_snippets.py "cours scripting python/2. Intro python.md"
+    python3 scripts/check_snippets.py "cours scripting python"      # tout le vault (défaut)
 
 Sortie : 0 si tout est OK, 1 si au moins un bloc est en erreur.
 """
@@ -82,7 +82,7 @@ def collecter_md(cibles: list[str]) -> list[Path]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("chemins", nargs="*", default=["source"], help="fichiers ou dossiers à vérifier")
+    parser.add_argument("chemins", nargs="*", default=["cours scripting python"], help="fichiers ou dossiers à vérifier")
     args = parser.parse_args()
 
     fichiers = collecter_md(args.chemins)

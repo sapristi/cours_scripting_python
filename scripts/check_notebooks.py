@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Exécute les notebooks du vault pour vérifier que solutions + tests passent.
 
-Les notebooks source (dans source/) contiennent les solutions entre marqueurs
+Les notebooks source (dans "cours scripting python/") contiennent les solutions entre marqueurs
 "#BEGIN" / "#END" ; ce script les exécute de haut en bas avec le noyau Python
 local et échoue dès qu'une cellule lève (assert, exception...). À lancer après
 toute modification d'un notebook, avant de considérer un module comme terminé.
@@ -10,8 +10,8 @@ solutions retirées : elle n'est PAS exécutable, c'est normal.
 
 Usage :
     uv run scripts/check_notebooks.py [CHEMIN ...]
-    uv run scripts/check_notebooks.py "source/2. Intro python/exercices.ipynb"
-    uv run scripts/check_notebooks.py source      # tout le vault (défaut)
+    uv run scripts/check_notebooks.py "cours scripting python/2. Intro python/exercices.ipynb"
+    uv run scripts/check_notebooks.py "cours scripting python"      # tout le vault (défaut)
 
 Sortie : 0 si tous les notebooks s'exécutent sans erreur, 1 sinon.
 """
@@ -68,7 +68,7 @@ def executer(notebook: Path, timeout: int, kernel: str) -> tuple[bool, str]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("chemins", nargs="*", default=["source"], help="fichiers ou dossiers à exécuter")
+    parser.add_argument("chemins", nargs="*", default=["cours scripting python"], help="fichiers ou dossiers à exécuter")
     parser.add_argument("--timeout", type=int, default=120, help="timeout par cellule (s)")
     parser.add_argument("--kernel", default="python3", help="noyau Jupyter à utiliser")
     args = parser.parse_args()

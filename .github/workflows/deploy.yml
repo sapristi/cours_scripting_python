@@ -35,11 +35,11 @@ jobs:
       - name: Check notebooks execute
         # Les notebooks source contiennent les solutions : on les exécute
         # avant le build pour ne jamais déployer un TP cassé.
-        run: uv run --frozen scripts/check_notebooks.py source
+        run: uv run --frozen scripts/check_notebooks.py "cours scripting python"
 
       - name: Collect notebooks into content/
         # Les notebooks vivent dans les dossiers de modules
-        # ("source/N. <Titre>/...ipynb", source de vérité). Le script les copie
+        # ("cours scripting python/N. <Titre>/...ipynb", source de vérité). Le script les copie
         # dans content/ et y injecte une première cellule "Clear notebook".
         run: uv run --frozen scripts/collect_lite_content.py
 

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Rassemble les notebooks du vault dans content/ pour `jupyter lite build`.
 
-Les notebooks vivent dans les dossiers de modules ("source/N. <Titre>/...ipynb",
+Les notebooks vivent dans les dossiers de modules ("cours scripting python/N. <Titre>/...ipynb",
 source de vérité, jamais modifiés ici) ; ce script les copie dans content/
-en conservant l'arborescence relative à source/ (ex. "source/2. Intro
+en conservant l'arborescence relative à "cours scripting python/" (ex. "cours scripting python/2. Intro
 python/exercices.ipynb" devient "content/2. Intro python/exercices.ipynb"),
 pour les retrouver sous leur dossier dans JupyterLite.
 
@@ -17,7 +17,7 @@ celle publiée. La clé effacée est le chemin du notebook dans le site
 déjà une telle cellule (détectée via "indexedDB", ex. clé codée en dur
 "ESGI_1A/..."), elle est remplacée par la version à la bonne clé.
 
-Les solutions restent dans source/ entre marqueurs "#BEGIN" / "#END"
+Les solutions restent dans "cours scripting python/" entre marqueurs "#BEGIN" / "#END"
 (exécutables et testées en local, cf. scripts/check_notebooks.py) ; à la
 copie, le corps entre ces marqueurs est retiré et "#BEGIN" devient
 "# TODO: Votre solution", et les sorties sont vidées. La version déployée
@@ -34,7 +34,7 @@ import sys
 from pathlib import Path
 
 RACINE = Path(__file__).resolve().parent.parent
-SOURCE = RACINE / "source"
+SOURCE = RACINE / "cours scripting python"
 CONTENT = RACINE / "content"
 
 EXCLUS = (".git", "dist", "content", "node_modules", ".venv", ".obsidian", ".ipynb_checkpoints")
@@ -180,6 +180,9 @@ def collecter() -> None:
 
 
 def main() -> int:
+    if not SOURCE.is_dir():
+        print(f"dossier source introuvable : {SOURCE}", file=sys.stderr)
+        return 1
     shutil.rmtree(CONTENT, ignore_errors=True)
     CONTENT.mkdir(parents=True, exist_ok=True)
     collecter()
