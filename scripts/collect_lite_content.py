@@ -17,6 +17,12 @@ celle publiée. La clé effacée est le chemin du notebook dans le site
 déjà une telle cellule (détectée via "indexedDB", ex. clé codée en dur
 "ESGI_1A/..."), elle est remplacée par la version à la bonne clé.
 
+Les solutions restent dans source/ entre marqueurs "#BEGIN" / "#END"
+(exécutables et testées en local, cf. scripts/check_notebooks.py) ; à la
+copie, le corps entre ces marqueurs est retiré et "#BEGIN" devient
+"# TODO: Votre solution", et les sorties sont vidées. La version déployée
+est donc un énoncé à trous.
+
 Usage :
     uv run scripts/collect_lite_content.py
 """
@@ -34,6 +40,10 @@ CONTENT = RACINE / "content"
 EXCLUS = (".git", "dist", "content", "node_modules", ".venv", ".obsidian", ".ipynb_checkpoints")
 
 MARQUEUR = "indexedDB"
+
+SOLUTION_DEBUT = "#BEGIN"
+SOLUTION_FIN = "#END"
+SOLUTION_TODO = "# TODO: Votre solution"
 
 
 def est_exclu(chemin: Path) -> bool:
@@ -114,6 +124,38 @@ def est_cellule_clear(cellule: dict) -> bool:
     return MARQUEUR in "".join(cellule.get("source", []))
 
 
+def retirer_solutions(nb: dict) -> bool:
+    """Retire les corps entre "#BEGIN" / "#END" (cf. cours_algo/other/post_treatment.py).
+
+    "#BEGIN" devient "# TODO: Votre solution", la ligne "#END" disparaît,
+    les sorties sont vidées. Opère en place sur le dict notebook.
+    Renvoie True si au moins une solution a été retirée.
+    """
+    retire = False
+    for cellule in nb.get("cells", []):
+        if cellule.get("cell_type") != "code":
+            continue
+        source = cellule.get("source", [])
+        lignes = source if isinstance(source, list) else source.splitlines(keepends=True)
+        traitees: list[str] = []
+        dans_solution = False
+        for ligne in lignes:
+            if SOLUTION_DEBUT in ligne:
+                dans_solution = True
+                retire = True
+                traitees.append(ligne.replace(SOLUTION_DEBUT, SOLUTION_TODO))
+                continue
+            if SOLUTION_FIN in ligne:
+                dans_solution = False
+                continue
+            if not dans_solution:
+                traitees.append(ligne)
+        cellule["source"] = traitees
+        cellule["outputs"] = []
+        cellule["execution_count"] = None
+    return retire
+
+
 def collecter() -> None:
     for src in trouver_notebooks():
         rel = src.relative_to(SOURCE)
@@ -124,13 +166,17 @@ def collecter() -> None:
         cle = rel.as_posix()
         with open(dst, encoding="utf-8") as f:
             nb = json.load(f)
+        sans_solutions = retirer_solutions(nb)
         nb["cells"] = [cellule_clear(cle)] + [
             c for c in nb.get("cells", []) if not est_cellule_clear(c)
         ]
         with open(dst, "w", encoding="utf-8") as f:
             json.dump(nb, f, ensure_ascii=False, indent=1)
             f.write("\n")
-        print(f"{rel} -> content/{rel} [+ clear cell]")
+        suffixe = " [+ clear cell]"
+        if sans_solutions:
+            suffixe += " [+ solutions retirées]"
+        print(f"{rel} -> content/{rel}{suffixe}")
 
 
 def main() -> int:

@@ -28,4 +28,5 @@ Obsidian vault, pas un projet code.
 ## Scripts
 
 - `scripts/check_snippets.py` : syntaxe des snippets Python des `.md` (`ast.parse`, REPL `>>>` ignorés). Usage : `python3 scripts/check_snippets.py [CHEMIN ...]` (défaut : `source/`). À lancer avant de considérer un module comme terminé.
-- `scripts/collect_lite_content.py` : copie les notebooks de `source/` vers `content/` (staging gitignoré pour `jupyter lite build`, CI + `scripts/preview_lite.py`). Ne jamais éditer les copies dans `content/`.
+- `scripts/check_notebooks.py` : exécute les notebooks de `source/` avec le noyau local (`uv run scripts/check_notebooks.py [CHEMIN ...]`, défaut : `source/`). Les notebooks source contiennent les solutions ; sortie 0 si tout passe. À lancer après toute modification d'un notebook.
+- `scripts/collect_lite_content.py` : copie les notebooks de `source/` vers `content/` (staging gitignoré pour `jupyter lite build`, CI + `scripts/preview_lite.py`). Ne jamais éditer les copies dans `content/`. À la copie : retire les solutions entre `#BEGIN` / `#END` (`#BEGIN` → `# TODO: Votre solution`, sorties vidées) et injecte la cellule "Clear notebook" en première position.
